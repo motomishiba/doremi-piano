@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#fff8ef" />
+    <meta name="theme-color" content="#f3eadc" />
     <meta name="description" content="5歳から遊べる、ドレミ表示つきのスマホ向けピアノアプリ" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
@@ -19,6 +19,20 @@
             <p class="eyebrow">はじめての</p>
             <h1>ピアノあそび</h1>
           </div>
+          <span class="cat-mascot cat-mascot-header" aria-hidden="true">
+            <svg viewBox="0 0 80 64">
+              <path class="cat-tail" d="M60 48c12 4 16-9 8-15" />
+              <path class="cat-body" d="M24 55c-5-12-3-27 8-34 9-6 23-3 28 8 4 8 1 19-6 26H24Z" />
+              <path class="cat-ear" d="M29 23 27 6l13 10M55 17 66 7l-1 19" />
+              <path class="cat-face" d="M31 27c7-7 21-7 28 0v13c-6 10-22 10-28 0Z" />
+              <circle class="cat-eye" cx="40" cy="33" r="2.2" />
+              <circle class="cat-eye" cx="51" cy="33" r="2.2" />
+              <path class="cat-nose" d="M45 37l2 2-2 2-2-2Z" />
+              <path class="cat-mouth" d="M45 41c-3 4-6 1-7 0M45 41c3 4 6 1 7 0" />
+              <path class="cat-whisker" d="M32 38 18 35M32 42 17 44M58 38l13-3M58 42l14 3" />
+              <path class="cat-paw" d="M32 53c-2 5-8 5-10 0M54 53c2 5 8 5 10 0" />
+            </svg>
+          </span>
         </div>
         <button id="soundToggle" class="sound-toggle" type="button" aria-label="音あり" aria-pressed="true" title="音あり">
           <span aria-hidden="true">🔊</span><span class="sound-toggle-label">音</span>
@@ -99,20 +113,6 @@
           <div class="toy-piano-top" aria-hidden="true">
             <span class="toy-screw toy-screw-left"></span>
             <span class="toy-piano-name">ちいさなピアノ</span>
-            <span class="cat-mascot">
-              <svg viewBox="0 0 80 64" role="img" aria-label="ピアノのとなりの猫">
-                <path class="cat-tail" d="M60 48c12 4 16-9 8-15" />
-                <path class="cat-body" d="M24 55c-5-12-3-27 8-34 9-6 23-3 28 8 4 8 1 19-6 26H24Z" />
-                <path class="cat-ear" d="M29 23 27 6l13 10M55 17 66 7l-1 19" />
-                <path class="cat-face" d="M31 27c7-7 21-7 28 0v13c-6 10-22 10-28 0Z" />
-                <circle class="cat-eye" cx="40" cy="33" r="2.2" />
-                <circle class="cat-eye" cx="51" cy="33" r="2.2" />
-                <path class="cat-nose" d="M45 37l2 2-2 2-2-2Z" />
-                <path class="cat-mouth" d="M45 41c-3 4-6 1-7 0M45 41c3 4 6 1 7 0" />
-                <path class="cat-whisker" d="M32 38 18 35M32 42 17 44M58 38l13-3M58 42l14 3" />
-                <path class="cat-paw" d="M32 53c-2 5-8 5-10 0M54 53c2 5 8 5 10 0" />
-              </svg>
-            </span>
             <span class="toy-sticker">♡</span>
             <span class="toy-screw toy-screw-right"></span>
           </div>

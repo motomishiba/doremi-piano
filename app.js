@@ -1,12 +1,12 @@
 const ALL_KEYS = [
-  { id: "do", label: "ド", midi: 60, color: "#ef7182" },
-  { id: "re", label: "レ", midi: 62, color: "#ef9d66" },
-  { id: "mi", label: "ミ", midi: 64, color: "#f3be4a" },
-  { id: "fa", label: "ファ", midi: 65, color: "#8bc79e" },
-  { id: "so", label: "ソ", midi: 67, color: "#66b9d4" },
-  { id: "la", label: "ラ", midi: 69, color: "#789bd1" },
-  { id: "ti", label: "シ", midi: 71, color: "#a995cf" },
-  { id: "do2", label: "ド", midi: 72, color: "#e98dac" }
+  { id: "do", label: "ド", midi: 60, color: "#b97868" },
+  { id: "re", label: "レ", midi: 62, color: "#c88c5a" },
+  { id: "mi", label: "ミ", midi: 64, color: "#d1a34f" },
+  { id: "fa", label: "ファ", midi: 65, color: "#8da27b" },
+  { id: "so", label: "ソ", midi: 67, color: "#769b9b" },
+  { id: "la", label: "ラ", midi: 69, color: "#7f8fa5" },
+  { id: "ti", label: "シ", midi: 71, color: "#9583a0" },
+  { id: "do2", label: "ド", midi: 72, color: "#b2797d" }
 ];
 
 const BLACK_KEYS = [
@@ -36,31 +36,60 @@ const PIANO_SAMPLE_NAMES = {
 const pianoSampleBuffers = new Map();
 const pianoSampleRequests = new Map();
 
+const toEvents = (notes) => notes.map((note) => [note]);
+
+const makeCanonEvents = (theme, offset = 7) => Array.from(
+  { length: theme.length + offset },
+  (_, index) => [...new Set([
+    theme[index],
+    theme[index - offset]
+  ].filter(Boolean))]
+);
+
+// 「きらきら星」1番。最後の音を2回置き、伸ばす音も自然に聞こえるようにする。
+const TWINKLE_MELODY = [
+  "ド", "ド", "ソ", "ソ", "ラ", "ラ", "ソ", "ソ",
+  "ファ", "ファ", "ミ", "ミ", "レ", "レ", "ド", "ド",
+  "ソ", "ソ", "ファ", "ファ", "ミ", "ミ", "レ", "レ",
+  "ソ", "ソ", "ファ", "ファ", "ミ", "ミ", "レ", "レ",
+  "ド", "ド", "ソ", "ソ", "ラ", "ラ", "ソ", "ソ",
+  "ファ", "ファ", "ミ", "ミ", "レ", "レ", "ド", "ド"
+];
+
+// 「かえるの合唱」の主旋律。7音目のあとから2声目が入り、輪唱の重なりを作る。
+const FROG_MELODY = [
+  "ド", "レ", "ミ", "ファ", "ミ", "レ", "ド",
+  "ミ", "ファ", "ソ", "ラ", "ソ", "ファ", "ミ",
+  "ド", "ド", "レ", "レ", "ミ", "ミ", "ファ", "ファ",
+  "ミ", "ミ", "レ", "レ", "ド", "ド"
+];
+
+const FROG_CANON = makeCanonEvents(FROG_MELODY);
+const FROG_5_CANON = makeCanonEvents(FROG_MELODY.map((note) => note === "ラ" ? "ソ" : note));
+
 const SONGS = {
   twinkle: {
-    name: "きらきら星（れんしゅう）",
-    notesByRange: {
-      3: ["ド", "ド", "ミ", "ミ", "レ", "レ", "ド", "ミ", "レ", "ド"],
-      5: ["ド", "ド", "ソ", "ソ", "ファ", "ファ", "ミ", "ミ", "レ", "レ", "ド"],
-      8: ["ド", "ド", "ソ", "ソ", "ラ", "ラ", "ソ", "ファ", "ファ", "ミ", "ミ", "レ", "レ", "ド"]
+    name: "きらきら星",
+    eventsByRange: {
+      3: toEvents(["ド", "ド", "ミ", "ミ", "レ", "レ", "ド", "ド", "ミ", "ミ", "レ", "レ", "ド", "ド"]),
+      5: toEvents(TWINKLE_MELODY.map((note) => note === "ラ" ? "ソ" : note)),
+      8: toEvents(TWINKLE_MELODY)
     }
   },
   mini: {
     name: "ドレミのぼうけん",
-    notesByRange: {
-      3: ["ド", "レ", "ミ", "レ", "ド", "ミ", "レ", "ド"],
-      5: ["ド", "レ", "ミ", "ファ", "ソ", "ファ", "ミ", "レ", "ド"],
-      8: ["ド", "レ", "ミ", "ファ", "ソ", "ラ", "ソ", "ミ", "レ", "ド"]
+    eventsByRange: {
+      3: toEvents(["ド", "レ", "ミ", "レ", "ド", "ミ", "レ", "ド"]),
+      5: toEvents(["ド", "レ", "ミ", "ファ", "ソ", "ファ", "ミ", "レ", "ド"]),
+      8: toEvents(["ド", "レ", "ミ", "ファ", "ソ", "ラ", "ソ", "ミ", "レ", "ド"])
     }
   },
   frog: {
     name: "かえるの合唱",
-    notesByRange: {
-      // 3音・5音は、初めて遊ぶ子ども向けの簡単アレンジ。
-      3: ["ド", "レ", "ミ", "ド", "ド", "レ", "ミ", "ド", "ミ", "ミ", "レ", "レ", "ド"],
-      5: ["ド", "レ", "ミ", "ファ", "ミ", "レ", "ド", "ド", "ミ", "ファ", "ソ", "ソ", "ファ", "ミ", "ミ", "ド", "ド", "レ", "レ", "ミ", "ミ", "ファ", "ファ", "ミ", "レ", "ド"],
-      // 8音は「かえるの合唱」の1番の旋律。
-      8: ["ド", "レ", "ミ", "ファ", "ミ", "レ", "ド", "ド", "ミ", "ファ", "ソ", "ラ", "ソ", "ファ", "ミ", "ミ", "ド", "ド", "レ", "レ", "ミ", "ミ", "ファ", "ファ", "ミ", "ミ", "レ", "レ", "ド", "ド"]
+    eventsByRange: {
+      3: toEvents(["ド", "レ", "ミ", "ド", "ド", "レ", "ミ", "ド", "ミ", "ミ", "レ", "レ", "ド", "ド"]),
+      5: FROG_5_CANON,
+      8: FROG_CANON
     }
   }
 };
@@ -73,7 +102,7 @@ const state = {
   combo: 0,
   songId: "twinkle",
   currentIndex: 0,
-  pendingNote: null,
+  pendingNotes: [],
   noteStart: 0,
   noteDuration: 2800,
   reachedBottom: false,
@@ -89,8 +118,7 @@ const state = {
 
 const piano = document.querySelector("#piano");
 const fallingLane = document.querySelector("#fallingLane");
-const noteCard = document.querySelector("#noteCard");
-const noteText = document.querySelector("#noteText");
+const noteCards = document.querySelector("#noteCards");
 const message = document.querySelector("#message");
 const scorePill = document.querySelector("#scorePill");
 const comboPill = document.querySelector("#comboPill");
@@ -109,8 +137,8 @@ function noteFromLabel(label) {
   return activeKeys().find((note) => note.label === label) || ALL_KEYS.find((note) => note.label === label);
 }
 
-function currentSongNotes() {
-  return SONGS[state.songId].notesByRange[state.range] || SONGS[state.songId].notesByRange[3];
+function currentSongEvents() {
+  return SONGS[state.songId].eventsByRange[state.range] || SONGS[state.songId].eventsByRange[3];
 }
 
 function setMessage(text) {
@@ -343,11 +371,12 @@ function clearHint() {
   document.querySelectorAll(".piano-key.is-hint").forEach((key) => key.classList.remove("is-hint"));
 }
 
-function hintForPendingNote() {
+function hintForPendingNotes() {
   clearHint();
-  if (!state.pendingNote) return;
-  const key = [...document.querySelectorAll(".piano-key")].find((button) => button.dataset.note === state.pendingNote);
-  key?.classList.add("is-hint");
+  state.pendingNotes.forEach((label) => {
+    const key = [...document.querySelectorAll(".piano-key")].find((button) => button.dataset.note === label);
+    key?.classList.add("is-hint");
+  });
 }
 
 function setMode(mode) {
@@ -388,47 +417,67 @@ function setSong(songId) {
   }
 }
 
-function setNoteCard(noteLabel) {
-  const keyIndex = activeKeys().findIndex((note) => note.label === noteLabel);
-  const left = ((keyIndex + 0.5) / activeKeys().length) * 100;
-  noteText.textContent = noteLabel;
-  noteCard.style.left = `${left}%`;
-  noteCard.style.top = "14%";
-  noteCard.classList.remove("is-hidden", "is-late", "is-success", "is-wrong");
+function fingerForLabel(label) {
+  const keyIndex = Math.max(0, activeKeys().findIndex((note) => note.label === label));
+  const rightHandFingers = state.range === 8 ? [1, 2, 3, 1, 2, 3, 4, 5] : [1, 2, 3, 4, 5];
+  return rightHandFingers[keyIndex] || 1;
 }
 
-function showCurrentNote(token) {
+function setNoteCards(labels, top = "14%") {
+  noteCards.replaceChildren();
+  labels.forEach((label) => {
+    const keyIndex = Math.max(0, activeKeys().findIndex((note) => note.label === label));
+    const left = ((keyIndex + 0.5) / activeKeys().length) * 100;
+    const note = noteFromLabel(label);
+    const card = document.createElement("div");
+    card.className = "note-card";
+    card.dataset.note = label;
+    card.style.left = `${left}%`;
+    card.style.top = top;
+    card.style.setProperty("--note-color", note?.color || "#8b6a4d");
+    card.innerHTML = `<strong>${label}</strong><span>指 ${fingerForLabel(label)}</span>`;
+    noteCards.appendChild(card);
+  });
+}
+
+function showCurrentEvent(token) {
   if (token !== state.gameToken || state.mode !== "game") return;
 
-  const songNotes = currentSongNotes();
-  if (state.currentIndex >= songNotes.length) {
+  const songEvents = currentSongEvents();
+  if (state.currentIndex >= songEvents.length) {
     finishGame();
     return;
   }
 
-  state.pendingNote = songNotes[state.currentIndex];
+  state.pendingNotes = [...songEvents[state.currentIndex]];
   state.noteStart = performance.now();
   state.reachedBottom = false;
-  setNoteCard(state.pendingNote);
-  hintForPendingNote();
-  setMessage(`「${state.pendingNote}」をおしてみよう`);
+  setNoteCards(state.pendingNotes);
+  hintForPendingNotes();
+  setMessage(state.pendingNotes.length > 1
+    ? `「${state.pendingNotes.join("・")}」をいっしょにおしてみよう`
+    : `「${state.pendingNotes[0]}」をおしてみよう`);
   cancelAnimationFrame(state.animationFrame);
   state.animationFrame = requestAnimationFrame((now) => animateNote(now, token));
 }
 
 function animateNote(now, token) {
-  if (token !== state.gameToken || state.mode !== "game" || !state.pendingNote) return;
+  if (token !== state.gameToken || state.mode !== "game" || !state.pendingNotes.length) return;
 
   const progress = Math.min((now - state.noteStart) / state.noteDuration, 1);
   const top = 14 + progress * 75;
-  noteCard.style.top = `${top}%`;
+  noteCards.querySelectorAll(".note-card").forEach((card) => {
+    card.style.top = `${top}%`;
+  });
 
   if (progress >= 1) {
     if (!state.reachedBottom) {
       state.reachedBottom = true;
-      noteCard.classList.add("is-late");
-      hintForPendingNote();
-      setMessage(`ゆっくりで大丈夫。「${state.pendingNote}」をさがそう`);
+      noteCards.querySelectorAll(".note-card:not(.is-success)").forEach((card) => card.classList.add("is-late"));
+      hintForPendingNotes();
+      setMessage(state.pendingNotes.length > 1
+        ? `ゆっくりで大丈夫。2つの音をさがそう`
+        : `ゆっくりで大丈夫。「${state.pendingNotes[0]}」をさがそう`);
     }
     return;
   }
@@ -437,28 +486,39 @@ function animateNote(now, token) {
 }
 
 function handleGameAnswer(label) {
-  if (!state.pendingNote) return;
+  if (!state.pendingNotes.length) return;
 
-  if (label !== state.pendingNote) {
-    noteCard.classList.remove("is-wrong");
-    void noteCard.offsetWidth;
-    noteCard.classList.add("is-wrong");
-    setMessage(`おしい！「${state.pendingNote}」をさがしてみよう`);
-    hintForPendingNote();
+  const pendingIndex = state.pendingNotes.indexOf(label);
+  if (pendingIndex === -1) {
+    noteCards.querySelectorAll(".note-card:not(.is-success)").forEach((card) => {
+      card.classList.remove("is-wrong");
+      void card.offsetWidth;
+      card.classList.add("is-wrong");
+    });
+    setMessage(`おしい！「${state.pendingNotes.join("・")}」をさがしてみよう`);
+    hintForPendingNotes();
     return;
   }
 
   const progress = Math.min((performance.now() - state.noteStart) / state.noteDuration, 1);
   const isOnBeat = progress >= 0.74;
+  const matchedCard = [...noteCards.querySelectorAll(".note-card")].find((card) => card.dataset.note === label && !card.classList.contains("is-success"));
+  matchedCard?.classList.add("is-success");
+  state.pendingNotes.splice(pendingIndex, 1);
+
+  if (state.pendingNotes.length) {
+    hintForPendingNotes();
+    setMessage(`あと${state.pendingNotes.length}つ。いっしょにおしてみよう`);
+    return;
+  }
+
   const points = isOnBeat ? 2 : 1;
   state.score += points;
   state.combo += 1;
   scorePill.textContent = `⭐ ${state.score}`;
   comboPill.textContent = `${state.combo}コンボ`;
-  state.pendingNote = null;
   clearHint();
   cancelAnimationFrame(state.animationFrame);
-  noteCard.classList.add("is-success");
   setMessage(isOnBeat ? "ぴったり！" : "できた！");
   playSuccessSound();
 
@@ -466,7 +526,7 @@ function handleGameAnswer(label) {
   window.setTimeout(() => {
     if (token !== state.gameToken || state.mode !== "game") return;
     state.currentIndex += 1;
-    showCurrentNote(token);
+    showCurrentEvent(token);
   }, 430);
 }
 
@@ -477,21 +537,21 @@ function startGame() {
   state.score = 0;
   state.combo = 0;
   state.currentIndex = 0;
-  state.pendingNote = null;
+  state.pendingNotes = [];
   state.gameToken += 1;
   scorePill.textContent = "⭐ 0";
   comboPill.textContent = "0コンボ";
   gameStart.textContent = "▶️ もういちど";
   updateModeButtons();
-  showCurrentNote(state.gameToken);
+  showCurrentEvent(state.gameToken);
 }
 
 function stopGame() {
   state.gameToken += 1;
-  state.pendingNote = null;
+  state.pendingNotes = [];
   cancelAnimationFrame(state.animationFrame);
   clearHint();
-  noteCard.className = "note-card is-hidden";
+  noteCards.replaceChildren();
 }
 
 function stopListening() {
@@ -499,7 +559,7 @@ function stopListening() {
   state.listenTimers = [];
   state.listening = false;
   listenSong.textContent = "🎵 きく";
-  noteCard.className = "note-card is-hidden";
+  noteCards.replaceChildren();
 }
 
 function flashPlayingKey(label) {
@@ -522,31 +582,32 @@ function listenToSong() {
   updateModeButtons();
   state.listening = true;
   listenSong.textContent = "⏹ とめる";
-  const notes = currentSongNotes();
+  const events = currentSongEvents();
   const interval = 520;
   setMessage(`「${SONGS[state.songId].name.replace("（れんしゅう）", "")}」をきいているよ`);
 
-  notes.forEach((label, index) => {
+  events.forEach((labels, index) => {
     state.listenTimers.push(window.setTimeout(() => {
-      const note = noteFromLabel(label);
-      if (state.soundOn && note) playNote(note);
-      flashPlayingKey(label);
-      setNoteCard(label);
-      noteCard.classList.add("is-listening");
-      noteCard.style.top = "52%";
+      labels.forEach((label) => {
+        const note = noteFromLabel(label);
+        if (state.soundOn && note) playNote(note);
+        flashPlayingKey(label);
+      });
+      setNoteCards(labels, "52%");
+      noteCards.querySelectorAll(".note-card").forEach((card) => card.classList.add("is-listening"));
     }, index * interval));
   });
 
   state.listenTimers.push(window.setTimeout(() => {
     stopListening();
     setMessage("もういちど きいてみる？");
-  }, notes.length * interval + 900));
+  }, events.length * interval + 900));
 }
 
 function finishGame() {
-  state.pendingNote = null;
+  state.pendingNotes = [];
   clearHint();
-  noteCard.classList.add("is-hidden");
+  noteCards.replaceChildren();
   setMessage(`ぜんぶできたね！ ${state.score}こ せいかい ⭐`);
   playSuccessSound();
 }
