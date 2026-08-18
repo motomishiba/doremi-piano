@@ -14,63 +14,55 @@
     <div class="app-shell">
       <header class="topbar">
         <div class="brand">
-          <div class="brand-mark" aria-hidden="true">♪</div>
+          <div class="brand-mark" aria-hidden="true">🎹</div>
           <div>
             <p class="eyebrow">はじめての</p>
-            <h1>ドレミピアノ</h1>
+            <h1>ピアノあそび</h1>
           </div>
         </div>
-        <button id="soundToggle" class="sound-toggle" type="button" aria-pressed="true">
-          <span aria-hidden="true">🔊</span> 音あり
+        <button id="soundToggle" class="sound-toggle" type="button" aria-label="音あり" aria-pressed="true" title="音あり">
+          <span aria-hidden="true">🔊</span><span class="sound-toggle-label">音</span>
         </button>
       </header>
 
       <main class="content">
-        <section class="welcome-card" aria-labelledby="welcomeTitle">
-          <div>
-            <p class="section-kicker">ゆっくりで だいじょうぶ</p>
-            <h2 id="welcomeTitle">見えた「ドレミ」を<br />同じ鍵盤でおしてみよう</h2>
-          </div>
-          <div class="welcome-star" aria-hidden="true">★</div>
-        </section>
-
         <section class="mode-card" aria-labelledby="modeTitle">
           <div class="section-heading">
             <div>
-              <p class="section-kicker">あそびかた</p>
-              <h2 id="modeTitle">どちらにする？</h2>
+              <p class="section-kicker">MENU</p>
+              <h2 id="modeTitle">あそぶ</h2>
             </div>
             <span id="rangeLabel" class="range-label">8音であそぶ</span>
           </div>
           <div class="mode-buttons" role="tablist" aria-label="遊び方">
             <button class="mode-button is-active" type="button" data-mode="free" role="tab" aria-selected="true">
               <span class="button-icon" aria-hidden="true">🎹</span>
-              <span>ひいてみる</span>
+              <span>ひく</span>
             </button>
             <button class="mode-button" type="button" data-mode="game" role="tab" aria-selected="false">
               <span class="button-icon" aria-hidden="true">⭐</span>
-              <span>音符をおす</span>
+              <span>おとあそび</span>
             </button>
           </div>
           <div class="range-buttons" aria-label="使う音の数">
-            <button class="range-button" type="button" data-range="3">ド・レ・ミ</button>
+            <button class="range-button" type="button" data-range="3"><span aria-hidden="true">🌱</span> 3音</button>
             <button class="range-button" type="button" data-range="5">5音</button>
-            <button class="range-button is-active" type="button" data-range="8">ド〜ド</button>
+            <button class="range-button is-active" type="button" data-range="8"><span aria-hidden="true">🌈</span> 8音</button>
           </div>
           <div class="song-picker">
             <div class="song-picker-heading">
-              <span class="section-kicker">曲をえらぶ</span>
+              <span class="section-kicker">曲</span>
               <span id="selectedSongName" class="selected-song-name">きらきら星</span>
             </div>
             <div class="song-buttons" role="tablist" aria-label="練習する曲">
               <button class="song-button is-active" type="button" data-song="twinkle" role="tab" aria-selected="true">
-                <span aria-hidden="true">⭐</span> きらきら星
+                <span aria-hidden="true">⭐</span><span>きらきら星</span>
               </button>
               <button class="song-button" type="button" data-song="frog" role="tab" aria-selected="false">
-                <span aria-hidden="true">🐸</span> かえるのうた
+                <span aria-hidden="true">🐸</span><span>かえるの合唱</span>
               </button>
               <button class="song-button" type="button" data-song="mini" role="tab" aria-selected="false">
-                <span aria-hidden="true">🌈</span> ドレミのぼうけん
+                <span aria-hidden="true">🎵</span><span>ドレミ</span>
               </button>
             </div>
           </div>
@@ -79,8 +71,8 @@
         <section class="play-card" aria-labelledby="playTitle">
           <div class="play-header">
             <div>
-              <p class="section-kicker">れんしゅう</p>
-              <h2 id="playTitle">音符レーン</h2>
+              <p class="section-kicker">GUIDE</p>
+              <h2 id="playTitle">音符ガイド</h2>
             </div>
             <div class="score-board">
               <div id="scorePill" class="score-pill" aria-live="polite">⭐ 0</div>
@@ -88,21 +80,18 @@
             </div>
           </div>
 
-          <div id="fallingLane" class="falling-lane" aria-label="音符が落ちてくる場所">
-            <div class="lane-tip" aria-hidden="true">ここに音符がくるよ</div>
-            <div class="hit-line" aria-hidden="true"><span>ここで おしてね</span></div>
-            <div id="noteCard" class="note-card is-hidden" aria-live="polite">
-              <strong id="noteText">ド</strong>
-              <span>おしてね</span>
-            </div>
+          <div class="game-controls">
+            <button id="gameStart" class="primary-button" type="button">▶️ あそぶ</button>
+            <button id="listenSong" class="secondary-button" type="button">🎵 きく</button>
+            <button id="restartGame" class="secondary-button" type="button">↻ もういちど</button>
           </div>
 
           <p id="message" class="message" aria-live="polite">鍵盤を押して、音を聞いてみよう</p>
 
-          <div class="game-controls">
-            <button id="gameStart" class="primary-button" type="button">音符あそびをはじめる</button>
-            <button id="listenSong" class="secondary-button" type="button">🎵 きいてみる</button>
-            <button id="restartGame" class="secondary-button" type="button">もういちど</button>
+          <div id="fallingLane" class="falling-lane" aria-label="音符が落ちてくる場所">
+            <div class="lane-tip" aria-hidden="true">ここに音符がくるよ</div>
+            <div class="hit-line" aria-hidden="true"><span>タイミング</span></div>
+            <div id="noteCards" class="note-cards" aria-live="polite" aria-label="おす音"></div>
           </div>
         </section>
 
@@ -110,21 +99,38 @@
           <div class="toy-piano-top" aria-hidden="true">
             <span class="toy-screw toy-screw-left"></span>
             <span class="toy-piano-name">ちいさなピアノ</span>
+            <span class="cat-mascot">
+              <svg viewBox="0 0 80 64" role="img" aria-label="ピアノのとなりの猫">
+                <path class="cat-tail" d="M60 48c12 4 16-9 8-15" />
+                <path class="cat-body" d="M24 55c-5-12-3-27 8-34 9-6 23-3 28 8 4 8 1 19-6 26H24Z" />
+                <path class="cat-ear" d="M29 23 27 6l13 10M55 17 66 7l-1 19" />
+                <path class="cat-face" d="M31 27c7-7 21-7 28 0v13c-6 10-22 10-28 0Z" />
+                <circle class="cat-eye" cx="40" cy="33" r="2.2" />
+                <circle class="cat-eye" cx="51" cy="33" r="2.2" />
+                <path class="cat-nose" d="M45 37l2 2-2 2-2-2Z" />
+                <path class="cat-mouth" d="M45 41c-3 4-6 1-7 0M45 41c3 4 6 1 7 0" />
+                <path class="cat-whisker" d="M32 38 18 35M32 42 17 44M58 38l13-3M58 42l14 3" />
+                <path class="cat-paw" d="M32 53c-2 5-8 5-10 0M54 53c2 5 8 5 10 0" />
+              </svg>
+            </span>
             <span class="toy-sticker">♡</span>
             <span class="toy-screw toy-screw-right"></span>
           </div>
           <div class="piano-header">
             <div>
-              <p class="section-kicker">おおきな鍵盤</p>
-              <h2 id="pianoTitle">ここをおしてね</h2>
+              <p class="section-kicker">PIANO</p>
+              <h2 id="pianoTitle">ドレミをひこう</h2>
             </div>
-            <span class="touch-label">タッチで音が鳴ります</span>
+            <span class="touch-label">タッチしてね</span>
           </div>
           <div id="piano" class="piano" aria-label="ドレミピアノの鍵盤"></div>
         </section>
       </main>
 
-      <footer class="footer-note">まちがえても だいじょうぶ。たのしく音をさがそう。</footer>
+      <footer class="footer-note">
+        <span>まちがえても だいじょうぶ。たのしく音をさがそう。</span>
+        <small class="audio-credit">ピアノ音源：FluidR3_GM（CC BY 3.0）</small>
+      </footer>
     </div>
     <script src="./app.js" defer></script>
   </body>

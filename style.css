@@ -636,7 +636,7 @@ h2 {
   display: grid;
   place-items: end center;
   min-width: 0;
-  padding: 12px 4px 22px;
+  padding: 12px 4px 18px;
   border: 2px solid #ded7cf;
   border-top: 7px solid var(--key-color);
   border-bottom: 8px solid #cfc8bf;
@@ -664,17 +664,17 @@ h2 {
 }
 
 .piano-key .key-label {
-  font-size: clamp(1.35rem, 5vw, 2.15rem);
+  display: grid;
+  min-width: clamp(30px, 6vw, 56px);
+  min-height: clamp(30px, 6vw, 56px);
+  padding: 4px 7px;
+  place-items: center;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--key-color);
+  font-size: clamp(1.2rem, 4.5vw, 2rem);
   font-weight: 900;
   line-height: 1;
-  color: var(--ink);
-}
-
-.piano-key .key-hint {
-  margin-top: 7px;
-  font-size: clamp(0.55rem, 2vw, 0.75rem);
-  font-weight: 800;
-  opacity: 0.86;
 }
 
 .piano-key.is-pressed,
@@ -692,7 +692,8 @@ h2 {
   position: absolute;
   top: 0;
   left: calc((var(--black-position) / var(--key-count)) * 100%);
-  width: clamp(28px, 7.5vw, 56px);
+  width: calc((100% / var(--key-count)) * 0.56);
+  min-width: 18px;
   height: 60%;
   border: 2px solid #202431;
   border-top: 0;
@@ -726,11 +727,19 @@ h2 {
 }
 
 .footer-note {
+  display: grid;
+  gap: 4px;
   padding: 18px 10px 0;
   color: #a39a90;
   font-size: 0.78rem;
   font-weight: 800;
   text-align: center;
+}
+
+.audio-credit {
+  color: #b8aea4;
+  font-size: 0.62rem;
+  font-weight: 700;
 }
 
 @keyframes gentle-pulse {
@@ -796,47 +805,109 @@ h2 {
 
 @media (orientation: landscape) and (max-height: 700px) {
   .app-shell {
-    padding-top: 10px;
-    padding-bottom: 14px;
+    padding: 8px 12px 12px;
   }
 
   .topbar {
-    margin-bottom: 10px;
+    margin-bottom: 6px;
   }
 
   .welcome-card {
-    min-height: 86px;
-    padding: 15px 22px;
-  }
-
-  .welcome-card h2 {
-    font-size: 1.2rem;
-  }
-
-  .welcome-star {
-    font-size: 3rem;
+    display: none;
   }
 
   .mode-card,
   .play-card,
   .piano-card {
-    padding: 13px 18px;
+    padding: 9px 12px 12px;
+  }
+
+  .content {
+    gap: 8px;
+  }
+
+  .section-heading,
+  .piano-header {
+    margin-bottom: 6px;
+  }
+
+  .mode-button {
+    min-height: 38px;
+  }
+
+  .range-buttons {
+    margin-top: 6px;
+  }
+
+  .range-button {
+    min-height: 34px;
+  }
+
+  .song-picker {
+    margin-top: 7px;
+    padding-top: 7px;
+  }
+
+  .song-buttons {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .song-button {
+    min-height: 34px;
+    font-size: 0.7rem;
+  }
+
+  .play-header {
+    margin-bottom: 4px;
+  }
+
+  .game-controls {
+    gap: 6px;
+  }
+
+  .primary-button,
+  .secondary-button {
+    min-width: 0;
+    min-height: 36px;
+    padding: 0 12px;
+    font-size: 0.76rem;
+  }
+
+  .message {
+    min-height: 1.3em;
+    margin: 4px 2px 6px;
+    font-size: 0.78rem;
   }
 
   .falling-lane {
-    height: 150px;
+    height: min(28svh, 190px);
+    min-height: 108px;
   }
 
-  .piano-key {
-    min-height: 0;
+  .piano-card {
+    padding-top: 8px;
+    padding-bottom: 17px;
+  }
+
+  .toy-piano-top {
+    min-height: 30px;
+    margin-top: -2px;
+    margin-bottom: 5px;
+  }
+
+  .piano-header .section-kicker {
+    margin-bottom: 0;
   }
 
   .keyboard-frame {
-    height: 138px;
+    height: min(42svh, 238px);
+    min-height: 150px;
+    padding-right: 6px;
+    padding-left: 6px;
   }
 
   .footer-note {
-    padding-top: 9px;
+    padding-top: 5px;
   }
 }
 
@@ -848,5 +919,422 @@ h2 {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+}
+
+/* コンパクトなキッズピアノUI。鍵盤を主役にして、上部のメニューを小さくまとめる。 */
+.app-shell {
+  width: min(100%, 1180px);
+  padding-top: max(9px, env(safe-area-inset-top));
+  padding-right: clamp(8px, 2vw, 24px);
+  padding-bottom: 12px;
+  padding-left: clamp(8px, 2vw, 24px);
+}
+
+.topbar {
+  margin-bottom: 8px;
+}
+
+.brand-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: 13px;
+  font-size: 1.25rem;
+}
+
+.eyebrow {
+  margin-bottom: 1px;
+  font-size: 0.58rem;
+}
+
+h1 {
+  font-size: clamp(1.08rem, 3vw, 1.45rem);
+}
+
+.sound-toggle {
+  display: inline-flex;
+  min-width: 40px;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 8px;
+  border-radius: 12px;
+  font-size: 0.72rem;
+}
+
+.sound-toggle-label {
+  font-size: 0.65rem;
+  font-weight: 900;
+}
+
+.content {
+  gap: 8px;
+}
+
+.welcome-card {
+  display: none;
+}
+
+.mode-card,
+.play-card,
+.piano-card {
+  border-radius: 19px;
+  box-shadow: 0 8px 20px rgba(86, 70, 53, 0.09);
+}
+
+.mode-card,
+.play-card {
+  padding: 10px 12px 12px;
+}
+
+.section-heading,
+.piano-header {
+  margin-bottom: 7px;
+}
+
+.section-kicker {
+  margin-bottom: 1px;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+}
+
+h2 {
+  font-size: clamp(0.94rem, 2.5vw, 1.2rem);
+}
+
+.range-label,
+.touch-label {
+  padding: 5px 8px;
+  font-size: 0.64rem;
+}
+
+.mode-buttons,
+.range-buttons,
+.song-buttons {
+  gap: 6px;
+}
+
+.mode-button {
+  min-height: 40px;
+  border-radius: 13px;
+  font-size: 0.76rem;
+}
+
+.button-icon {
+  font-size: 1rem;
+}
+
+.range-buttons {
+  margin-top: 6px;
+}
+
+.range-button {
+  min-height: 34px;
+  border-radius: 11px;
+  font-size: 0.68rem;
+}
+
+.song-picker {
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.song-picker-heading {
+  margin-bottom: 5px;
+}
+
+.selected-song-name {
+  font-size: 0.68rem;
+}
+
+.song-button {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 0 5px;
+  border-radius: 11px;
+  font-size: 0.65rem;
+}
+
+.play-header {
+  margin-bottom: 6px;
+}
+
+.score-board {
+  gap: 4px;
+}
+
+.score-pill,
+.combo-pill {
+  min-width: 0;
+  padding: 5px 7px;
+  font-size: 0.65rem;
+}
+
+.game-controls {
+  gap: 5px;
+}
+
+.primary-button,
+.secondary-button {
+  min-width: 0;
+  min-height: 36px;
+  flex: 1 1 0;
+  padding: 0 8px;
+  border-radius: 12px;
+  font-size: 0.68rem;
+}
+
+.message {
+  min-height: 1.3em;
+  margin: 6px 2px;
+  font-size: 0.72rem;
+}
+
+.falling-lane {
+  height: clamp(150px, 25vw, 235px);
+  border-radius: 16px;
+}
+
+.lane-tip {
+  top: 8px;
+  font-size: 0.62rem;
+}
+
+.hit-line {
+  bottom: 12%;
+}
+
+.hit-line span {
+  top: -10px;
+  right: 6px;
+  font-size: 0.56rem;
+}
+
+.note-card {
+  width: clamp(58px, 11vw, 84px);
+  min-height: 60px;
+  border-width: 3px;
+  border-radius: 18px;
+}
+
+.note-card strong {
+  font-size: clamp(1.35rem, 5vw, 2rem);
+}
+
+.note-card span {
+  font-size: 0.58rem;
+}
+
+.piano-card {
+  padding: 11px 12px 18px;
+}
+
+.toy-piano-top {
+  min-height: 27px;
+  margin: -4px -2px 7px;
+  padding: 0 8px;
+  border-radius: 12px 12px 8px 8px;
+}
+
+.toy-piano-name {
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+}
+
+.toy-sticker {
+  font-size: 1.25rem;
+}
+
+.toy-screw {
+  width: 10px;
+  height: 10px;
+}
+
+.toy-screw::after {
+  top: 3px;
+  left: 1px;
+  width: 5px;
+  height: 1px;
+}
+
+.piano-header {
+  margin-bottom: 7px;
+}
+
+.keyboard-frame {
+  height: clamp(205px, 54vw, 310px);
+  padding: 8px 7px 0;
+  border-radius: 17px 17px 22px 22px;
+}
+
+.black-keys {
+  right: 7px;
+  left: 7px;
+}
+
+.piano-key {
+  padding: 12px 3px 23px;
+  border-radius: 11px 11px 18px 18px;
+}
+
+.piano-key .key-label {
+  min-width: clamp(28px, 6vw, 56px);
+  min-height: clamp(28px, 6vw, 56px);
+  padding: 4px 6px;
+  font-size: clamp(1.12rem, 4.5vw, 2rem);
+}
+
+.black-key {
+  width: calc((100% / var(--key-count)) * 0.48);
+  min-width: 16px;
+  height: 56%;
+  border-radius: 0 0 9px 9px;
+}
+
+.footer-note {
+  gap: 2px;
+  padding-top: 8px;
+  font-size: 0.66rem;
+}
+
+.audio-credit {
+  font-size: 0.54rem;
+}
+
+@media (max-width: 420px) {
+  .app-shell {
+    padding-right: 7px;
+    padding-left: 7px;
+  }
+
+  .topbar {
+    margin-bottom: 6px;
+  }
+
+  .brand-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    font-size: 1.05rem;
+  }
+
+  .sound-toggle-label {
+    display: none;
+  }
+
+  .mode-card,
+  .play-card,
+  .piano-card {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .song-buttons {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .song-button {
+    min-height: 34px;
+    gap: 1px;
+    padding: 0 2px;
+    font-size: 0.57rem;
+  }
+
+  .song-button > span:first-child {
+    font-size: 0.78rem;
+  }
+
+  .falling-lane {
+    height: 178px;
+  }
+
+  .keyboard-frame {
+    height: 214px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 700px) {
+  .app-shell {
+    width: 100%;
+    padding: 6px 9px 8px;
+  }
+
+  .topbar {
+    margin-bottom: 5px;
+  }
+
+  .content {
+    gap: 6px;
+  }
+
+  .mode-card,
+  .play-card {
+    padding: 7px 9px 8px;
+  }
+
+  .mode-card .section-heading {
+    margin-bottom: 4px;
+  }
+
+  .mode-button {
+    min-height: 34px;
+  }
+
+  .range-button,
+  .song-button {
+    min-height: 30px;
+  }
+
+  .song-picker {
+    margin-top: 5px;
+    padding-top: 5px;
+  }
+
+  .play-card {
+    order: 2;
+  }
+
+  .piano-card {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    order: 3;
+    margin-top: 0;
+    padding: 7px 9px 10px;
+    border-radius: 17px 17px 12px 12px;
+    box-shadow: 0 -6px 18px rgba(86, 70, 53, 0.13), 0 8px 0 rgba(200, 77, 100, 0.1);
+    backdrop-filter: blur(8px);
+  }
+
+  .toy-piano-top {
+    min-height: 20px;
+    margin: -3px -2px 4px;
+  }
+
+  .piano-header {
+    margin-bottom: 4px;
+  }
+
+  .falling-lane {
+    height: min(27svh, 150px);
+    min-height: 94px;
+  }
+
+  .keyboard-frame {
+    height: min(45svh, 226px);
+    min-height: 150px;
+    padding-top: 6px;
+  }
+
+  .black-key {
+    height: 53%;
+  }
+
+  .footer-note {
+    display: none;
   }
 }

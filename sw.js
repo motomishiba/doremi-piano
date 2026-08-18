@@ -1,4 +1,4 @@
-const CACHE_NAME = "doremi-piano-v1";
+const CACHE_NAME = "doremi-piano-v4";
 const APP_SHELL = [
   "./",
   "./index.html",

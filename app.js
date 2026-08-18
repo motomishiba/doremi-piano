@@ -17,6 +17,25 @@ const BLACK_KEYS = [
   { id: "la-sharp", label: "ラ♯", midi: 70, afterWhite: 6 }
 ];
 
+const PIANO_SAMPLE_ROOT = "https://gleitz.github.io/midi-js-soundfonts/FluidR3_GM/acoustic_grand_piano-mp3/";
+const PIANO_SAMPLE_NAMES = {
+  60: "C4",
+  61: "Db4",
+  62: "D4",
+  63: "Eb4",
+  64: "E4",
+  65: "F4",
+  66: "Gb4",
+  67: "G4",
+  68: "Ab4",
+  69: "A4",
+  70: "Bb4",
+  71: "B4",
+  72: "C5"
+};
+const pianoSampleBuffers = new Map();
+const pianoSampleRequests = new Map();
+
 const SONGS = {
   twinkle: {
     name: "きらきら星（れんしゅう）",
@@ -35,11 +54,13 @@ const SONGS = {
     }
   },
   frog: {
-    name: "かえるのうた",
+    name: "かえるの合唱",
     notesByRange: {
-      3: ["ド", "レ", "ミ", "ド", "ド", "レ", "ミ", "ド"],
-      5: ["ド", "レ", "ミ", "ド", "ド", "レ", "ミ", "ド", "ミ", "ファ", "ソ"],
-      8: ["ド", "レ", "ミ", "ド", "ド", "レ", "ミ", "ド", "ミ", "ファ", "ソ", "ソ", "ミ", "ミ", "ド"]
+      // 3音・5音は、初めて遊ぶ子ども向けの簡単アレンジ。
+      3: ["ド", "レ", "ミ", "ド", "ド", "レ", "ミ", "ド", "ミ", "ミ", "レ", "レ", "ド"],
+      5: ["ド", "レ", "ミ", "ファ", "ミ", "レ", "ド", "ド", "ミ", "ファ", "ソ", "ソ", "ファ", "ミ", "ミ", "ド", "ド", "レ", "レ", "ミ", "ミ", "ファ", "ファ", "ミ", "レ", "ド"],
+      // 8音は「かえるの合唱」の1番の旋律。
+      8: ["ド", "レ", "ミ", "ファ", "ミ", "レ", "ド", "ド", "ミ", "ファ", "ソ", "ラ", "ソ", "ファ", "ミ", "ミ", "ド", "ド", "レ", "レ", "ミ", "ミ", "ファ", "ファ", "ミ", "ミ", "レ", "レ", "ド", "ド"]
     }
   }
 };
@@ -59,6 +80,9 @@ const state = {
   animationFrame: null,
   gameToken: 0,
   audioContext: null,
+  outputGain: null,
+  compressor: null,
+  samplesStarted: false,
   listening: false,
   listenTimers: []
 };
@@ -112,7 +136,7 @@ function renderKeyboard() {
     key.dataset.note = note.label;
     key.style.setProperty("--key-color", note.color);
     key.setAttribute("aria-label", `${note.label}の鍵盤`);
-    key.innerHTML = `<span class="key-label">${note.label}</span><span class="key-hint">ここをおす</span>`;
+    key.innerHTML = `<span class="key-label">${note.label}</span>`;
     key.addEventListener("pointerdown", (event) => handleKeyPress(event, key, note));
     whiteKeys.appendChild(key);
   });
@@ -165,6 +189,24 @@ function ensureAudio() {
     }
   }
 
+  if (state.audioContext && !state.outputGain) {
+    state.outputGain = state.audioContext.createGain();
+    state.compressor = state.audioContext.createDynamicsCompressor();
+    state.compressor.threshold.value = -18;
+    state.compressor.knee.value = 18;
+    state.compressor.ratio.value = 4;
+    state.compressor.attack.value = 0.003;
+    state.compressor.release.value = 0.25;
+    // スマホでも聞き取りやすい音量にしつつ、音割れを抑える。
+    state.outputGain.gain.value = 1.35;
+    state.outputGain.connect(state.compressor).connect(state.audioContext.destination);
+  }
+
+  if (state.audioContext && !state.samplesStarted) {
+    state.samplesStarted = true;
+    preloadPianoSamples();
+  }
+
   if (state.audioContext?.state === "suspended") {
     state.audioContext.resume();
   }
@@ -175,7 +217,44 @@ function frequencyForMidi(midi) {
   return 440 * Math.pow(2, (midi - 69) / 12);
 }
 
-function playNote(note) {
+function loadPianoSample(note) {
+  const sampleName = PIANO_SAMPLE_NAMES[note.midi];
+  if (!sampleName || !state.audioContext) return Promise.resolve(null);
+  if (pianoSampleBuffers.has(note.midi)) return Promise.resolve(pianoSampleBuffers.get(note.midi));
+  if (pianoSampleRequests.has(note.midi)) return pianoSampleRequests.get(note.midi);
+
+  const request = fetch(`${PIANO_SAMPLE_ROOT}${sampleName}.mp3`, { mode: "cors" })
+    .then((response) => {
+      if (!response.ok) throw new Error(`piano sample ${response.status}`);
+      return response.arrayBuffer();
+    })
+    .then((encoded) => state.audioContext.decodeAudioData(encoded))
+    .then((buffer) => {
+      pianoSampleBuffers.set(note.midi, buffer);
+      return buffer;
+    })
+    .catch(() => null);
+
+  pianoSampleRequests.set(note.midi, request);
+  return request;
+}
+
+function preloadPianoSamples() {
+  Object.keys(PIANO_SAMPLE_NAMES).forEach((midi) => {
+    loadPianoSample({ midi: Number(midi) });
+  });
+}
+
+function playPianoSample(buffer) {
+  const context = state.audioContext;
+  if (!context || !buffer) return;
+  const source = context.createBufferSource();
+  source.buffer = buffer;
+  source.connect(state.outputGain || context.destination);
+  source.start();
+}
+
+function playSynthNote(note) {
   const context = state.audioContext;
   if (!context) return;
 
@@ -192,9 +271,9 @@ function playNote(note) {
 
   // ピアノの打鍵らしく、短い立ち上がりと長い減衰を作る。
   master.gain.setValueAtTime(0.0001, now);
-  master.gain.exponentialRampToValueAtTime(0.52, now + 0.012);
+  master.gain.exponentialRampToValueAtTime(0.64, now + 0.012);
   master.gain.exponentialRampToValueAtTime(0.0001, now + 2.15);
-  master.connect(context.destination);
+  master.connect(state.outputGain || context.destination);
 
   partials.forEach(({ ratio, level, type }) => {
     const oscillator = context.createOscillator();
@@ -207,6 +286,25 @@ function playNote(note) {
     oscillator.connect(partialGain).connect(master);
     oscillator.start(now);
     oscillator.stop(now + 2.2);
+  });
+}
+
+function playNote(note) {
+  const context = state.audioContext;
+  if (!context) return;
+
+  const loaded = pianoSampleBuffers.get(note.midi);
+  if (loaded) {
+    playPianoSample(loaded);
+    return;
+  }
+
+  loadPianoSample(note).then((buffer) => {
+    if (buffer) {
+      playPianoSample(buffer);
+    } else {
+      playSynthNote(note);
+    }
   });
 }
 
@@ -259,7 +357,7 @@ function setMode(mode) {
     stopListening();
     updateModeButtons();
     setMessage("鍵盤を押して、音を聞いてみよう");
-    gameStart.textContent = "音符あそびをはじめる";
+    gameStart.textContent = "▶️ あそぶ";
     return;
   }
 
@@ -383,7 +481,7 @@ function startGame() {
   state.gameToken += 1;
   scorePill.textContent = "⭐ 0";
   comboPill.textContent = "0コンボ";
-  gameStart.textContent = "音符あそびをもう一度";
+  gameStart.textContent = "▶️ もういちど";
   updateModeButtons();
   showCurrentNote(state.gameToken);
 }
@@ -400,7 +498,7 @@ function stopListening() {
   state.listenTimers.forEach((timer) => window.clearTimeout(timer));
   state.listenTimers = [];
   state.listening = false;
-  listenSong.textContent = "🎵 きいてみる";
+  listenSong.textContent = "🎵 きく";
   noteCard.className = "note-card is-hidden";
 }
 
@@ -423,7 +521,7 @@ function listenToSong() {
   state.mode = "free";
   updateModeButtons();
   state.listening = true;
-  listenSong.textContent = "⏹ いったん止める";
+  listenSong.textContent = "⏹ とめる";
   const notes = currentSongNotes();
   const interval = 520;
   setMessage(`「${SONGS[state.songId].name.replace("（れんしゅう）", "")}」をきいているよ`);
@@ -457,7 +555,11 @@ soundToggle.addEventListener("click", () => {
   state.soundOn = !state.soundOn;
   soundToggle.classList.toggle("is-muted", !state.soundOn);
   soundToggle.setAttribute("aria-pressed", String(state.soundOn));
-  soundToggle.innerHTML = state.soundOn ? "<span aria-hidden=\"true\">🔊</span> 音あり" : "<span aria-hidden=\"true\">🔇</span> 音なし";
+  soundToggle.setAttribute("aria-label", state.soundOn ? "音あり" : "音なし");
+  soundToggle.title = state.soundOn ? "音あり" : "音なし";
+  soundToggle.innerHTML = state.soundOn
+    ? "<span aria-hidden=\"true\">🔊</span><span class=\"sound-toggle-label\">音</span>"
+    : "<span aria-hidden=\"true\">🔇</span><span class=\"sound-toggle-label\">消音</span>";
   setMessage(state.soundOn ? "音が鳴るよ。鍵盤をおしてみよう" : "音を消したよ。画面だけでも遊べるよ");
 });
 
