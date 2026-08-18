@@ -94,12 +94,6 @@
             </div>
           </div>
 
-          <div class="game-controls">
-            <button id="gameStart" class="primary-button" type="button">▶️ あそぶ</button>
-            <button id="listenSong" class="secondary-button" type="button">🎵 きく</button>
-            <button id="restartGame" class="secondary-button" type="button">↻ もういちど</button>
-          </div>
-
           <p id="message" class="message" aria-live="polite">鍵盤を押して、音を聞いてみよう</p>
 
           <div id="fallingLane" class="falling-lane" aria-label="音符が落ちてくる場所">
@@ -119,9 +113,17 @@
           <div class="piano-header">
             <div>
               <p class="section-kicker">PIANO</p>
-              <h2 id="pianoTitle">ドレミをひこう</h2>
+              <h2 id="pianoTitle"><span class="piano-title-icon" aria-hidden="true">🎼</span><span class="piano-title-text">ドレミをひこう</span></h2>
             </div>
             <span class="touch-label">タッチしてね</span>
+          </div>
+          <div class="piano-tools" aria-label="ピアノの操作">
+            <span class="guide-icon" role="img" aria-label="音符ガイド">🎵</span>
+            <div class="game-controls">
+              <button id="gameStart" class="primary-button icon-control" type="button" aria-label="あそぶ" title="あそぶ"><span aria-hidden="true">▶</span><span class="control-label">あそぶ</span></button>
+              <button id="listenSong" class="secondary-button icon-control" type="button" aria-label="きく" title="きく"><span aria-hidden="true">♫</span><span class="control-label">きく</span></button>
+              <button id="restartGame" class="secondary-button icon-control" type="button" aria-label="もういちど" title="もういちど"><span aria-hidden="true">↻</span><span class="control-label">もういちど</span></button>
+            </div>
           </div>
           <div id="piano" class="piano" aria-label="ドレミピアノの鍵盤"></div>
         </section>

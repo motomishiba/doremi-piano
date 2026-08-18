@@ -2360,3 +2360,528 @@ body {
     font-size: clamp(0.72rem, 3vw, 1.1rem);
   }
 }
+
+.piano-tools {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.piano-tools .piano-header {
+  min-width: 0;
+  flex: 1 1 auto;
+  margin: 0;
+}
+
+.piano-title-icon {
+  display: none;
+}
+
+.guide-icon {
+  display: grid;
+  width: 27px;
+  height: 27px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 2px solid #a47b55;
+  border-radius: 9px;
+  color: #fffaf1;
+  background: #8b6a4d;
+  box-shadow: 0 2px 0 rgba(112, 76, 55, 0.16);
+  font-size: 0.85rem;
+}
+
+.piano-tools .game-controls {
+  display: flex;
+  min-width: 0;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  gap: 4px;
+  margin: 0;
+}
+
+.icon-control {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.icon-control > span:first-child {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.lane-tip {
+  width: clamp(170px, 45vw, 245px);
+  padding: 4px 8px;
+  border: 1px dashed #cdb391;
+  border-radius: 999px;
+  color: #8e765d;
+  background: rgba(255, 250, 241, 0.86);
+  text-align: center;
+}
+
+.lane-tip::before,
+.lane-tip::after {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .piano-tools {
+    margin-bottom: 4px;
+  }
+
+  .piano-tools .piano-header h2 {
+    font-size: 0.82rem;
+  }
+
+  .guide-icon {
+    width: 25px;
+    height: 25px;
+    border-radius: 8px;
+    font-size: 0.76rem;
+  }
+
+  .piano-tools .game-controls {
+    gap: 3px;
+  }
+
+  .piano-tools .icon-control {
+    min-height: 30px;
+    padding: 0 5px;
+    font-size: 0.58rem;
+  }
+
+  .lane-tip {
+    width: min(210px, 62vw);
+    padding: 3px 7px;
+    font-size: 0.54rem;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 700px) {
+  .piano-card .toy-piano-top {
+    display: none;
+  }
+
+  .piano-card .piano-tools {
+    display: flex;
+    min-height: 25px;
+    flex: 0 0 25px;
+    margin-bottom: 3px;
+  }
+
+  .piano-card .piano-header {
+    display: flex;
+    align-items: center;
+    margin: 0;
+  }
+
+  .piano-card .piano-header .section-kicker,
+  .piano-card .piano-header .touch-label,
+  .piano-card .piano-title-text {
+    display: none;
+  }
+
+  .piano-card .piano-title-icon {
+    display: inline;
+    font-size: 1.15rem;
+  }
+
+  .piano-card .guide-icon {
+    width: 23px;
+    height: 23px;
+    border-width: 1px;
+    border-radius: 7px;
+    font-size: 0.7rem;
+  }
+
+  .piano-card .piano-tools .game-controls {
+    min-height: 25px;
+    flex: 0 0 auto;
+    gap: 3px;
+  }
+
+  .piano-card .piano-tools .icon-control {
+    width: 27px;
+    min-width: 27px;
+    min-height: 25px;
+    padding: 0;
+    border-width: 1px;
+    border-radius: 7px;
+  }
+
+  .piano-card .piano-tools .control-label {
+    display: none;
+  }
+
+  .piano-card .piano-tools .icon-control > span:first-child {
+    font-size: 0.8rem;
+  }
+
+  .piano-card .keyboard-frame {
+    min-height: 0;
+    flex: 1 1 auto;
+  }
+
+  .lane-tip {
+    width: clamp(170px, 30vw, 230px);
+    padding: 3px 7px;
+    font-size: 0.52rem;
+  }
+}
+
+/* 8音すべてをスマホの鍵盤幅の中に収める */
+.piano,
+.keyboard-frame,
+.white-keys,
+.black-keys {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.keyboard-frame {
+  overflow: hidden;
+}
+
+.white-keys {
+  grid-template-columns: repeat(var(--key-count), minmax(0, 1fr));
+}
+
+.piano-key {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.piano-key .key-label {
+  max-width: 92%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.black-key {
+  max-width: calc((100% / var(--key-count)) * 0.48);
+}
+
+/* スマホは横向き専用。上段をメニュー、中央を音符、下段を大きな鍵盤に固定する。 */
+@media (max-width: 700px) and (orientation: portrait) {
+  html,
+  body {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 100%;
+    overflow: hidden;
+  }
+
+  .app-shell {
+    display: none;
+  }
+
+  body::before {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 32px;
+    color: #6f5139;
+    background: #f3eadc;
+    content: "スマホを横向きにして遊んでね";
+    font-size: 1.25rem;
+    font-weight: 900;
+    text-align: center;
+    z-index: 20;
+  }
+}
+
+/* 横向きスマホの1画面レイアウト */
+@media (orientation: landscape) and (max-height: 700px) {
+  html,
+  body {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  .app-shell {
+    display: flex;
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+    min-height: 0;
+    flex-direction: column;
+    overflow: hidden;
+    padding: max(4px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(4px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+  }
+
+  .topbar {
+    flex: 0 0 clamp(32px, 8vh, 52px);
+    min-height: 32px;
+    margin-bottom: 4px;
+  }
+
+  .content {
+    display: grid;
+    min-height: 0;
+    flex: 1 1 auto;
+    grid-template-rows: clamp(50px, 12vh, 72px) minmax(84px, 22vh) minmax(170px, 1fr);
+    gap: 4px;
+    overflow: hidden;
+  }
+
+  .mode-card,
+  .play-card,
+  .piano-card {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* ひく・おとあそび・3/5/8音・曲を1本のメニューバーにまとめる */
+  .mode-card {
+    display: grid;
+    grid-template-columns: 46px minmax(100px, 0.78fr) minmax(86px, 0.66fr) minmax(190px, 1.55fr);
+    align-items: center;
+    gap: 4px;
+    padding: 4px 6px;
+  }
+
+  .mode-card .section-heading {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 1px;
+    margin: 0;
+  }
+
+  .mode-card .section-heading .section-kicker {
+    display: none;
+  }
+
+  .mode-card .section-heading h2 {
+    overflow: hidden;
+    font-size: 0.72rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mode-card .range-label {
+    max-width: 46px;
+    overflow: hidden;
+    padding: 2px 3px;
+    font-size: 0.42rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mode-buttons,
+  .range-buttons {
+    min-width: 0;
+    gap: 3px;
+    margin: 0;
+  }
+
+  .mode-button,
+  .range-button,
+  .song-button {
+    min-width: 0;
+    min-height: 28px;
+    overflow: hidden;
+    border-radius: 8px;
+    padding: 0 3px;
+    font-size: 0.5rem;
+    line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mode-button {
+    gap: 2px;
+  }
+
+  .button-icon,
+  .song-button > span:first-child {
+    flex: 0 0 auto;
+    font-size: 0.64rem;
+  }
+
+  .song-picker {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .song-picker-heading {
+    display: grid;
+    min-width: 28px;
+    gap: 1px;
+    margin: 0;
+  }
+
+  .song-picker-heading .section-kicker,
+  .selected-song-name {
+    overflow: hidden;
+    font-size: 0.43rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .song-buttons {
+    display: grid;
+    min-width: 0;
+    flex: 1 1 auto;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3px;
+  }
+
+  .play-card {
+    display: flex;
+    flex-direction: column;
+    padding: 4px 6px;
+  }
+
+  .play-header {
+    display: none;
+  }
+
+  .message {
+    min-height: 14px;
+    margin: 0 2px 3px;
+    overflow: hidden;
+    font-size: 0.57rem;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .falling-lane {
+    height: auto;
+    min-height: 0;
+    flex: 1 1 auto;
+    border-radius: 10px;
+  }
+
+  .lane-tip {
+    width: clamp(160px, 27vw, 225px);
+    padding: 2px 6px;
+    font-size: 0.48rem;
+  }
+
+  .hit-line {
+    bottom: 13%;
+  }
+
+  .piano-card {
+    display: flex;
+    flex-direction: column;
+    padding: 4px 5px 5px;
+    border-width: 2px;
+    border-radius: 13px;
+  }
+
+  .piano-card .toy-piano-top,
+  .piano-card .piano-header {
+    display: none;
+  }
+
+  .piano-card .piano-tools {
+    display: flex;
+    min-height: 27px;
+    flex: 0 0 27px;
+    align-items: center;
+    margin: 0 0 3px;
+  }
+
+  .piano-card .guide-icon {
+    width: 24px;
+    height: 24px;
+    border-width: 1px;
+    border-radius: 7px;
+    font-size: 0.7rem;
+  }
+
+  .piano-card .piano-tools .game-controls {
+    min-height: 27px;
+    flex: 1 1 auto;
+    justify-content: flex-end;
+    gap: 3px;
+  }
+
+  .piano-card .piano-tools .icon-control {
+    min-width: 58px;
+    min-height: 27px;
+    padding: 0 5px;
+    border-width: 1px;
+    border-radius: 7px;
+    font-size: 0.5rem;
+  }
+
+  .piano-card .piano-tools .icon-control > span:first-child {
+    font-size: 0.78rem;
+  }
+
+  .piano-card .piano-tools .control-label {
+    display: inline;
+  }
+
+  .piano-card .keyboard-frame {
+    height: auto;
+    min-height: 0;
+    flex: 1 1 auto;
+    padding: 4px 4px 0;
+    border-width: 2px;
+    border-bottom-width: 4px;
+    border-radius: 10px 10px 13px 13px;
+  }
+
+  .piano-card .black-keys {
+    top: 4px;
+    right: 4px;
+    left: 4px;
+  }
+
+  .piano-card .piano-key {
+    padding: 7px 2px 10px;
+    border-top-width: 3px;
+    border-bottom-width: 5px;
+    border-radius: 7px 7px 11px 11px;
+  }
+
+  .piano-card .piano-key::before {
+    top: 4px;
+    width: 7px;
+    height: 7px;
+  }
+
+  .piano-card .piano-key .key-label {
+    min-width: clamp(24px, 5vw, 48px);
+    min-height: clamp(24px, 5vw, 48px);
+    padding: 3px 5px;
+    font-size: clamp(0.9rem, 3.8vw, 1.7rem);
+  }
+
+  .piano-card .black-key {
+    min-width: 10px;
+    max-width: calc((100% / var(--key-count)) * 0.42);
+    height: 52%;
+  }
+
+  .footer-note {
+    display: none;
+  }
+}

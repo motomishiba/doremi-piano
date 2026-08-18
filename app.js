@@ -145,6 +145,12 @@ function setMessage(text) {
   message.textContent = text;
 }
 
+function setControlLabel(button, icon, label) {
+  button.setAttribute("aria-label", label);
+  button.title = label;
+  button.innerHTML = `<span aria-hidden="true">${icon}</span><span class="control-label">${label}</span>`;
+}
+
 function renderKeyboard() {
   const keys = activeKeys();
   document.documentElement.style.setProperty("--key-count", keys.length);
@@ -386,7 +392,7 @@ function setMode(mode) {
     stopListening();
     updateModeButtons();
     setMessage("鍵盤を押して、音を聞いてみよう");
-    gameStart.textContent = "▶️ あそぶ";
+    setControlLabel(gameStart, "▶", "あそぶ");
     return;
   }
 
@@ -541,7 +547,7 @@ function startGame() {
   state.gameToken += 1;
   scorePill.textContent = "⭐ 0";
   comboPill.textContent = "0コンボ";
-  gameStart.textContent = "▶️ もういちど";
+  setControlLabel(gameStart, "▶", "もういちど");
   updateModeButtons();
   showCurrentEvent(state.gameToken);
 }
@@ -558,7 +564,7 @@ function stopListening() {
   state.listenTimers.forEach((timer) => window.clearTimeout(timer));
   state.listenTimers = [];
   state.listening = false;
-  listenSong.textContent = "🎵 きく";
+  setControlLabel(listenSong, "♫", "きく");
   noteCards.replaceChildren();
 }
 
@@ -581,7 +587,7 @@ function listenToSong() {
   state.mode = "free";
   updateModeButtons();
   state.listening = true;
-  listenSong.textContent = "⏹ とめる";
+  setControlLabel(listenSong, "■", "とめる");
   const events = currentSongEvents();
   const interval = 520;
   setMessage(`「${SONGS[state.songId].name.replace("（れんしゅう）", "")}」をきいているよ`);
