@@ -111,6 +111,7 @@ const state = {
   audioContext: null,
   outputGain: null,
   compressor: null,
+  audioUnlocked: false,
   samplesStarted: false,
   listening: false,
   listenTimers: []
@@ -219,7 +220,11 @@ function ensureAudio() {
   if (!state.audioContext) {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     if (AudioContextClass) {
-      state.audioContext = new AudioContextClass();
+      try {
+        state.audioContext = new AudioContextClass();
+      } catch {
+        state.audioContext = null;
+      }
     }
   }
 
@@ -242,7 +247,22 @@ function ensureAudio() {
   }
 
   if (state.audioContext?.state === "suspended") {
-    state.audioContext.resume();
+    state.audioContext.resume().catch(() => {});
+  }
+
+  // iPhone / iPad Safariは、ユーザー操作中に音声出力を一度解放する必要がある。
+  // ほぼ無音の1サンプルを鳴らして、最初の鍵盤タップを確実に音声開始に使う。
+  if (state.audioContext && !state.audioUnlocked) {
+    try {
+      const silentBuffer = state.audioContext.createBuffer(1, 1, 22050);
+      const silentSource = state.audioContext.createBufferSource();
+      silentSource.buffer = silentBuffer;
+      silentSource.connect(state.outputGain || state.audioContext.destination);
+      silentSource.start(0);
+      state.audioUnlocked = true;
+    } catch {
+      // 次のユーザー操作で再試行する。
+    }
   }
 }
 
@@ -327,19 +347,29 @@ function playNote(note) {
   const context = state.audioContext;
   if (!context) return;
 
-  const loaded = pianoSampleBuffers.get(note.midi);
-  if (loaded) {
-    playPianoSample(loaded);
+  const playNow = () => {
+    const loaded = pianoSampleBuffers.get(note.midi);
+    if (loaded) {
+      playPianoSample(loaded);
+      return;
+    }
+
+    // iPhoneではネットワーク音源を待つと最初の音が無音になるため、
+    // まず即時に予備音を鳴らし、ピアノ音源は次回以降のために裏で読み込む。
+    playSynthNote(note);
+    loadPianoSample(note);
+  };
+
+  // Safariが音声を一時停止状態から戻す前に音を予約すると、
+  // 最初の音が消えることがある。再開後に実際の音を作る。
+  if (context.state !== "running") {
+    context.resume().then(playNow).catch(() => {
+      window.setTimeout(playNow, 0);
+    });
     return;
   }
 
-  loadPianoSample(note).then((buffer) => {
-    if (buffer) {
-      playPianoSample(buffer);
-    } else {
-      playSynthNote(note);
-    }
-  });
+  playNow();
 }
 
 function playSuccessSound() {
@@ -619,6 +649,7 @@ function finishGame() {
 }
 
 soundToggle.addEventListener("click", () => {
+  if (!state.soundOn) ensureAudio();
   state.soundOn = !state.soundOn;
   soundToggle.classList.toggle("is-muted", !state.soundOn);
   soundToggle.setAttribute("aria-pressed", String(state.soundOn));
@@ -629,6 +660,11 @@ soundToggle.addEventListener("click", () => {
     : "<span aria-hidden=\"true\">🔇</span><span class=\"sound-toggle-label\">消音</span>";
   setMessage(state.soundOn ? "音が鳴るよ。鍵盤をおしてみよう" : "音を消したよ。画面だけでも遊べるよ");
 });
+
+// iPhone / iPadで鍵盤以外を最初に触った場合も、音声を先に解放しておく。
+const unlockAudioOnFirstGesture = () => ensureAudio();
+window.addEventListener("pointerdown", unlockAudioOnFirstGesture, { capture: true, once: true, passive: true });
+window.addEventListener("touchstart", unlockAudioOnFirstGesture, { capture: true, once: true, passive: true });
 
 document.querySelectorAll("[data-mode]").forEach((button) => {
   button.addEventListener("click", () => setMode(button.dataset.mode));
